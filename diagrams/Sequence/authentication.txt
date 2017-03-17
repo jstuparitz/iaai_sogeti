@@ -1,0 +1,81 @@
+@startuml
+
+title .NET Authentication Diagram
+
+participant "browser" as client 
+
+participant "a page" as page #99FF99
+participant master #99FF99
+participant "auth.ashx" as auth #99FF99
+
+participant "AuthClient" as AuthClient 
+participant "[session]" as ses #99FF99
+
+participant "login.aspx" as login #99EEFF
+participant "access.ashx" as a1 #99EEFF
+
+participant "Auth2Manager" as sso 
+participant "Storage" as DB 
+participant "IdProvider" as IDP 
+
+client->page : 1. navigate
+page -> master: 2. Page Load
+
+master -> AuthClient: new
+master -> AuthClient: 3. GetCurrentUserInfo
+activate AuthClient
+ses ->> AuthClient: 4. get user
+
+AuthClient --> master: user info from session
+
+AuthClient ->> ses: 5. set urls #1,2
+AuthClient --> master: url #3 (if no user)
+deactivate AuthClient
+
+master --> client: user info (or url #3)
+
+client -> login: 6. if no user, then redirect to url #3
+
+login->sso: 7. GetCode (login, password)
+sso -> IDP: 8. GetUser (id, pass)
+activate IDP
+IDP --> sso: user info
+deactivate IDP
+
+sso ->> DB: 9. register session
+sso-->login: session code
+
+login --> auth: 10. redirect (code)
+
+auth -> AuthClient: 11. AuthUser (code)
+activate AuthClient
+
+ses ->> AuthClient: 12. get page url
+AuthClient -> a1: 13. REST CALL (code, url)
+a1 -> sso: 14. GetToken (code)
+activate sso
+DB ->> sso: get session
+sso --> a1: atoken
+deactivate sso
+a1 --> AuthClient: access token (json)
+
+AuthClient -> a1: 15. REST CALL (atoken)
+a1 -> sso: 16. GetUser (atoken)
+activate sso
+DB ->> sso: get session
+sso --> a1: user info
+deactivate sso
+a1 --> AuthClient: user info (json)
+
+AuthClient->> ses: 17. set user
+
+AuthClient -->auth: true
+deactivate AuthClient
+
+
+ses ->> auth: 18. get page url
+auth --> client: 19. redirect
+client->page : 1. navigate
+
+
+@enduml
