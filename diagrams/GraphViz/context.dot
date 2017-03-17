@@ -1,0 +1,33 @@
+digraph ContextDiagram {
+  node [ fontsize=12, shape=ellipse, style=rounded];
+  edge [fontsize=10];
+  compound=true; 
+  nodesep=0.6; 
+  rankdir="LR";
+
+
+  ApiClient           [label="3rd-part\nAPI client"];
+  WebClient           [label="Web\nBrowser"];
+  MobileClient           [label="Mobile client"];
+
+  //----------------------------------------------
+  subgraph "cluster Core" {
+    label="IAAI Platform"; style=dashed;
+
+ 
+    Portal       [label="Portal"];
+    API          [label="API"];
+    LE           [label="Live Engine"];
+    PBE          [label="Pre-bid Engine"];
+
+    API -> LE;
+    API -> PBE;
+    Portal -> API;
+
+  }
+
+  ApiClient -> API [dir=both];
+  MobileClient -> API [dir=both];
+  WebClient -> Portal [dir=both];
+
+}
