@@ -105,7 +105,7 @@ namespace IAA.Auctions.Actors
 				});
 				return;
 			}
-			auction.Tell(new Messages.CloseAuction());
+			auction.Tell(cmd);
 		}
 
 		public void PlaceBid(Messages.CommandBid cmd)

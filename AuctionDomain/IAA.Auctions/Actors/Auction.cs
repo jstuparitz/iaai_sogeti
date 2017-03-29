@@ -34,7 +34,7 @@ namespace IAA.Auctions.Actors
 				InitAuction(sa);
 			});
 
-			Receive<Messages.CloseAuction>(ca =>
+			Receive<Messages.CommandClose>(ca =>
 			{
 				CloseAuction(ca);
 			});
@@ -94,7 +94,7 @@ namespace IAA.Auctions.Actors
 		}
 
 
-		public void CloseAuction(Messages.CloseAuction close)
+		public void CloseAuction(Messages.CommandClose close)
 		{
 
 			auctionItem.Close();

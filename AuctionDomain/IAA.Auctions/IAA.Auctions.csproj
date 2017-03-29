@@ -55,7 +55,6 @@
     <Compile Include="Actors\User.cs" />
     <Compile Include="MessageBus.cs" />
     <Compile Include="Messages\AuctionResult.cs" />
-    <Compile Include="Messages\CloseAuction.cs" />
     <Compile Include="Messages\Command.cs" />
     <Compile Include="Messages\CommandBid.cs" />
     <Compile Include="Messages\CommandClose.cs" />
