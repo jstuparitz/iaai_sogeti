@@ -9,8 +9,16 @@ namespace IAA.Business.Model
 {
 	public class Vehicle
 	{
-		public string VIN { get; set; }
-		public string Make { get; set; }
-		public int Year { get; set; }
+
+		public Vehicle(string make, int year, string vin)
+		{
+			Make = make;
+			Year = year;
+			VIN = vin;
+		}
+
+		public string VIN { get; private set; }
+		public string Make { get; private set; }
+		public int Year { get; private set; }
 	}
 }

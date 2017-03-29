@@ -9,13 +9,12 @@ using System.Threading.Tasks;
 namespace IAA.Auctions.Actors
 {
 
-
 	public class Auction : ReceiveActor
 	{
 
 		private Business.Model.AuctionItem auctionItem;
 
-
+		#region Actor routing methods
 		public Auction()
 		{
 			WaitForInput();
@@ -34,40 +33,36 @@ namespace IAA.Auctions.Actors
 				InitAuction(sa);
 			});
 
-			Receive<Messages.CommandClose>(ca =>
+			Receive<Messages.CommandCloseAuction>(ca =>
 			{
 				CloseAuction(ca);
 			});
 
 		}
+		#endregion
+
+		#region Start Auction
 		public void InitAuction(Messages.CommandStartAuction auction) {
-			//Console.WriteLine("Auction {0}: Open with {1}", auction.AuctionId, auction.Price);
 			auctionItem = CreateAuctionDomainObject(auction);
 			auctionItem.OpenAuction(new Business.Model.Money(auction.StartAmount));
 		}
 
 		private Business.Model.AuctionItem CreateAuctionDomainObject(Messages.CommandStartAuction cmd)
 		{
-			var vehicle = new Business.Model.Vehicle()
-			{
-				Make = cmd.VehicleMake,
-				VIN = cmd.VIN,
-				Year = cmd.VehicleYear
-			};
-			var res = new Business.Model.AuctionItem()
-			{
-				Item = vehicle
-			};
+			var vehicle = new Business.Model.Vehicle(cmd.VehicleMake, cmd.VehicleYear, cmd.VIN);
+			var res = new Business.Model.AuctionItem(vehicle);
 			return res;
 		}
+		#endregion
 
+		#region Place Bid
 		public void ProcessBid(Messages.PlaceBid bid)
 		{
 
 			if (!auctionItem.AcceptsBids())
 			{
-				var selection = Context.ActorSelection(Tools.Names.AuctionManagerPath());
-				selection.Tell(new Messages.Error()
+				var managerActor = Context.ActorSelection(Tools.Names.AuctionManagerPath());
+				managerActor.Tell(new Messages.Error()
 				{
 					UserId = bid.UserId,
 					Location = "Auction.ProcessBid",
@@ -92,16 +87,16 @@ namespace IAA.Auctions.Actors
 				LastBidder = auctionItem.LastBidder.Name
 			});
 		}
+		#endregion
 
-
-		public void CloseAuction(Messages.CommandClose close)
+		#region Close Auction
+		public void CloseAuction(Messages.CommandCloseAuction close)
 		{
 
 			auctionItem.Close();
 
-			//Console.WriteLine("Auction {0}: Close");
-			var selection = Context.ActorSelection(Tools.Names.AuctionManagerPath());
-			selection.Tell(new Messages.AuctionResult()
+			var managerActor = Context.ActorSelection(Tools.Names.AuctionManagerPath());
+			managerActor.Tell(new Messages.AuctionResult()
 			{
 				FinalPrice = auctionItem.MaxBid.GetValue(),
 				Winner = auctionItem.LastBidder.Name
@@ -109,6 +104,7 @@ namespace IAA.Auctions.Actors
 			, Self);
 
 		}
+		#endregion
 
 	}
 }

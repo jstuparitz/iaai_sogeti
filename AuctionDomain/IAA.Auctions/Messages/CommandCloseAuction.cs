@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IAA.Auctions.Messages
 {
-	public class CommandClose: Command
+	public class CommandCloseAuction: Command
 	{
 		public string AuctionId { get; set; }
 	}

@@ -12,9 +12,10 @@ namespace IAA.Business.Model
 	public class AuctionItem
 	{
 
-		public AuctionItem()
+		public AuctionItem(Vehicle vehicle)
 		{
 			Status = AuctionStatus.NotStarted;
+			Item = vehicle ?? throw new ArgumentNullException();
 		}
 
 		public string Id
@@ -22,12 +23,12 @@ namespace IAA.Business.Model
 			get { return String.Format("A{0}", Item.VIN); }
 		}
 
-		public AuctionStatus Status { get; set; }
-		public Money StartingPrice { get; set; }
-		public Money MaxBid { get; set; }
-		public Vehicle Item { get; set; }
+		public AuctionStatus Status { get; private set; }
+		public Money StartingPrice { get; private set; }
+		public Money MaxBid { get; private set; }
+		public Vehicle Item { get; private set; }
 
-		public UserIdentity LastBidder { get; set; }
+		public UserIdentity LastBidder { get; private set; }
 
 
 		public void OpenAuction(Money startPrice)
@@ -48,12 +49,12 @@ namespace IAA.Business.Model
 			return Status == AuctionStatus.Active;
 		}
 
-		public bool PlaceBid(UserIdentity user, Money amt)
+		public bool PlaceBid(UserIdentity user, Money amount)
 		{
 			if (!AcceptsBids()) throw new ApplicationException("Cannot accept bids");
-			if (amt.IsGreaterThan(MaxBid))
+			if (amount.IsGreaterThan(MaxBid))
 			{
-				MaxBid = amt;
+				MaxBid = amount;
 				LastBidder = user;
 				return true;
 			}

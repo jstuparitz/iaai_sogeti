@@ -8,6 +8,6 @@ namespace IAA.Business.Model
 {
 	public class Member
 	{
-		public string Name { get; set; }
+		public string Name { get; private set; }
 	}
 }

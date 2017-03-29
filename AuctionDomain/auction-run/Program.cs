@@ -51,7 +51,7 @@ namespace simulate.auction
 				foreach (XElement xe in status.doc.Root.Elements())
 				{
 					queue.Put(xe);
-					Thread.Sleep(500);
+					Thread.Sleep(500); // For debugging purposes
 				}
 				queue.Close();
 				return status;

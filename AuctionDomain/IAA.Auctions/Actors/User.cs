@@ -13,6 +13,7 @@ namespace IAA.Auctions.Actors
 
 		private string _userId;
 
+		#region Actor routing methods
 		public User(string userId)
 		{
 			_userId = userId;
@@ -32,7 +33,9 @@ namespace IAA.Auctions.Actors
 			});
 
 		}
+		#endregion
 
+		#region Process commands
 		public void PlaceBid(Messages.CommandBid bid)
 		{
 			//Console.WriteLine("USER {0}: Place Bid {1}", bid.Author, bid.Amount);
@@ -44,7 +47,7 @@ namespace IAA.Auctions.Actors
 		{
 			Trace.WriteLine("Price " + res.CurrentPrice.ToString());
 		}
-
+		#endregion
 
 
 	}
