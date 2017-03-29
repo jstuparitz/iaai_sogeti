@@ -59,12 +59,11 @@
     <Compile Include="Messages\Command.cs" />
     <Compile Include="Messages\CommandBid.cs" />
     <Compile Include="Messages\CommandClose.cs" />
-    <Compile Include="Messages\CommandOpen.cs" />
+    <Compile Include="Messages\CommandStartAuction.cs" />
     <Compile Include="Messages\BidResult.cs" />
     <Compile Include="Messages\Error.cs" />
     <Compile Include="Messages\MessageToServer.cs" />
     <Compile Include="Messages\PlaceBid.cs" />
-    <Compile Include="Messages\StartAuction.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Tools\Names.cs" />
   </ItemGroup>

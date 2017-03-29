@@ -12,6 +12,10 @@ namespace IAA.Auctions.Tools
 		public static string AuctionServerId = "AuctionServer";
 		public static string AuctionManagerId = "AuctionManager";
 
+		public static string AuctionId(string VIN)
+		{
+			return String.Format("A{0}", VIN);
+		}
 		public static string AuctionActorId(string auctionId)
 		{
 			return String.Format("auction-{0}", auctionId);
@@ -33,5 +37,6 @@ namespace IAA.Auctions.Tools
 		{
 			return String.Format("/user/{0}", AuctionManagerId);
 		}
+
 	}
 }

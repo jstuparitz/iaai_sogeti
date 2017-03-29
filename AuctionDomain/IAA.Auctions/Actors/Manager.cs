@@ -47,7 +47,7 @@ namespace IAA.Auctions.Actors
 			switch (msg.Atr("cmd"))
 			{
 				case "open":
-					OpenAuction(new CommandOpen() {
+					OpenAuction(new CommandStartAuction() {
 						Author = msg.Atr("user"),
 						VehicleMake = msg.Atr("make"),
 						VehicleYear = msg.AtrInt("year"),
@@ -78,34 +78,16 @@ namespace IAA.Auctions.Actors
 			//Trace.WriteLine(String.Format("ERROR in {0}: {1} {2} ",err.Location, err.Reason, err.Data));
 		}
 
-		public void OpenAuction(Messages.CommandOpen cmd)
+		public void OpenAuction(Messages.CommandStartAuction cmd)
 		{
-
-			var dmAuction = CreateAuctionDomainObject(cmd);
-
 			//Console.WriteLine("MANAGER: Open Auction {0}/{1}", cmd.AuctionId, cmd.StartAmount);
-			string actorId = Tools.Names.AuctionActorId(dmAuction.Id);
-			var newAuction =
-							Context.ActorOf(Props.Create(() =>
-									new Actors.Auction(dmAuction)),
+			string anId = Tools.Names.AuctionId(cmd.VIN);
+			string actorId = Tools.Names.AuctionActorId(anId);
+			var newAuction = Context.ActorOf(Props.Create(() =>
+									new Actors.Auction()),
 									actorId);
-			newAuction.Tell(new Messages.StartAuction()
-			{
-				Price = cmd.StartAmount
-			});
+			newAuction.Tell(cmd);
 			//Console.WriteLine("   new auction: {0}", newAuction.Path);
-		}
-
-		private Business.Model.AuctionItem CreateAuctionDomainObject(CommandOpen cmd)
-		{
-			var vehicle = new Business.Model.Vehicle() {
-				Make = cmd.VehicleMake,
-				VIN = cmd.VIN,
-				Year = cmd.VehicleYear };
-			var res = new Business.Model.AuctionItem() {
-				Item = vehicle
-			};
-			return res;
 		}
 
 		public void CloseAuction(Messages.CommandClose cmd)

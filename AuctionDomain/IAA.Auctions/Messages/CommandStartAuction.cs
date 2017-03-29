@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace IAA.Auctions.Messages
 {
-	public class CommandOpen: Command
+	public class CommandStartAuction: Command
 	{
 		public int VehicleYear { get; set; }
 		public string VehicleMake { get; set; }

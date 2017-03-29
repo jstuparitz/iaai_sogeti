@@ -13,12 +13,11 @@ namespace IAA.Auctions.Actors
 	public class Auction : ReceiveActor
 	{
 
-		private Business.Model.AuctionItem theAuction;
+		private Business.Model.AuctionItem auctionItem;
 
 
-		public Auction(Business.Model.AuctionItem anAuction)
+		public Auction()
 		{
-			theAuction = anAuction;
 			WaitForInput();
 		}
 
@@ -30,7 +29,7 @@ namespace IAA.Auctions.Actors
 				ProcessBid(bid);
 			});
 
-			Receive<Messages.StartAuction>(sa =>
+			Receive<Messages.CommandStartAuction>(sa =>
 			{
 				InitAuction(sa);
 			});
@@ -41,15 +40,31 @@ namespace IAA.Auctions.Actors
 			});
 
 		}
-		public void InitAuction(Messages.StartAuction auction) {
+		public void InitAuction(Messages.CommandStartAuction auction) {
 			//Console.WriteLine("Auction {0}: Open with {1}", auction.AuctionId, auction.Price);
-			theAuction.OpenAuction(new Business.Model.Money(auction.Price));
+			auctionItem = CreateAuctionDomainObject(auction);
+			auctionItem.OpenAuction(new Business.Model.Money(auction.StartAmount));
+		}
+
+		private Business.Model.AuctionItem CreateAuctionDomainObject(Messages.CommandStartAuction cmd)
+		{
+			var vehicle = new Business.Model.Vehicle()
+			{
+				Make = cmd.VehicleMake,
+				VIN = cmd.VIN,
+				Year = cmd.VehicleYear
+			};
+			var res = new Business.Model.AuctionItem()
+			{
+				Item = vehicle
+			};
+			return res;
 		}
 
 		public void ProcessBid(Messages.PlaceBid bid)
 		{
 
-			if (!theAuction.AcceptsBids())
+			if (!auctionItem.AcceptsBids())
 			{
 				var selection = Context.ActorSelection(Tools.Names.AuctionManagerPath());
 				selection.Tell(new Messages.Error()
@@ -57,24 +72,24 @@ namespace IAA.Auctions.Actors
 					UserId = bid.UserId,
 					Location = "Auction.ProcessBid",
 					Reason = "Auction is not active",
-					Data = theAuction.Id
+					Data = auctionItem.Id
 				});
 				return;
 			}
 
 			bool wasAccepted = false;
-			wasAccepted = theAuction.PlaceBid(new Business.Model.UserIdentity(bid.UserId), new Business.Model.Money(bid.Amount));
+			wasAccepted = auctionItem.PlaceBid(new Business.Model.UserIdentity(bid.UserId), new Business.Model.Money(bid.Amount));
 
 			if (wasAccepted)
 			{
-				Console.WriteLine("Auction {0}: Accepting bid {1} from {2}", theAuction.Id, bid.Amount, bid.UserId);
+				Console.WriteLine("Auction {0}: Accepting bid {1} from {2}", auctionItem.Id, bid.Amount, bid.UserId);
 			}
 
 			Context.Parent.Tell(new Messages.BidResult()
 			{
 				Accepted = wasAccepted,
-				CurrentPrice = theAuction.MaxBid.GetValue(),
-				LastBidder = theAuction.LastBidder.Name
+				CurrentPrice = auctionItem.MaxBid.GetValue(),
+				LastBidder = auctionItem.LastBidder.Name
 			});
 		}
 
@@ -82,14 +97,14 @@ namespace IAA.Auctions.Actors
 		public void CloseAuction(Messages.CloseAuction close)
 		{
 
-			theAuction.Close();
+			auctionItem.Close();
 
 			//Console.WriteLine("Auction {0}: Close");
 			var selection = Context.ActorSelection(Tools.Names.AuctionManagerPath());
 			selection.Tell(new Messages.AuctionResult()
 			{
-				FinalPrice = theAuction.MaxBid.GetValue(),
-				Winner = theAuction.LastBidder.Name
+				FinalPrice = auctionItem.MaxBid.GetValue(),
+				Winner = auctionItem.LastBidder.Name
 			}
 			, Self);
 
